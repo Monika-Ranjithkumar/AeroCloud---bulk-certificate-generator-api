@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroCloud - Easy Bulk Certificate Generator</title>
+  <meta name="description" content="Effortlessly create, customize, and issue professional certificates in bulk for courses, events, and workshops with instant QR code verification.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <div class="logo-brand">
+        <div class="logo-icon">☁️</div>
+        <div>
+          <span class="brand-title">AeroCloud</span>
+          <span class="brand-subtitle">Certificate Studio</span>
+        </div>
+      </div>
+      
+      <nav class="nav-links">
+        <button class="nav-btn active" id="tab-create" onclick="switchTab('create')">✨ Create Batch</button>
+        <button class="nav-btn" id="tab-gallery" onclick="switchTab('gallery')">📁 My Certificates <span class="badge" id="cert-count-badge">0</span></button>
+        <button class="nav-btn" id="tab-verify" onclick="switchTab('verify')">🔍 Verify Certificate</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero-section">
+    <div class="container hero-content">
+      <h1 class="hero-title">Create & Issue Certificates in Seconds</h1>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="container main-layout">
+    
+    <!-- TAB 1: CREATE BATCH WIZARD -->
+    <div id="view-create" class="tab-view active">
+      <div class="grid-2col">
+        
+        <!-- Left Column: Simple Setup Form -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2>1. Certificate Design & Details</h2>
+            <p>Select your template design and certificate details</p>
+          </div>
+
+          <form id="certificate-form" onsubmit="event.preventDefault(); generateBatch();">
+            <div class="form-group">
+              <label for="template-select">🎨 Certificate Design Theme</label>
+              <select id="template-select" onchange="updateLivePreview()">
+                <option value="classic_gold">🏆 Classic Gold & Navy (Traditional / Formal)</option>
+                <option value="modern_emerald">🌿 Modern Emerald (Tech / Science / Eco)</option>
+                <option value="executive_crimson">👑 Executive Crimson & Gold (Executive / Leadership)</option>
+                <option value="minimalist_purple">🔮 Minimalist Violet (Design / Art / Creative)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="issuer-name">Organization / Issuer Name</label>
+              <input type="text" id="issuer-name" value="AeroCloud Academy" placeholder="e.g. AeroCloud Academy" required oninput="updateLivePreview()">
+            </div>
+
+            <div class="form-group">
+              <label for="course-title">Course or Event Title</label>
+              <input type="text" id="course-title" value="Mastering Data Science & AI" placeholder="e.g. Web Development Workshop 2026" required oninput="updateLivePreview()">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cert-title">Certificate Type</label>
+                <select id="cert-title" onchange="updateLivePreview()">
+                  <option value="Certificate of Achievement">Certificate of Achievement</option>
+                  <option value="Certificate of Completion">Certificate of Completion</option>
+                  <option value="Certificate of Excellence">Certificate of Excellence</option>
+                  <option value="Certificate of Participation">Certificate of Participation</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="issue-date">Date of Issue</label>
+                <input type="date" id="issue-date" required onchange="updateLivePreview()">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+              <label style="display:flex; align-items:center; gap:8px; font-weight:normal; cursor:pointer;">
+                <input type="checkbox" id="send-email-checkbox" checked style="width:18px; height:18px;">
+                <span>📧 Automatically send PDF certificates directly to participant emails</span>
+              </label>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="card-header-sub">
+              <h2>2. Participants List</h2>
+              <p>Type or paste participants (One per line: <strong>Name, Email</strong>)</p>
+            </div>
+
+            <div class="form-group">
+              <div class="textarea-header">
+                <label for="recipients-text">Participant Names & Emails</label>
+                <button type="button" class="btn-text" onclick="loadSampleParticipants()">⚡ Load Sample List</button>
+              </div>
+              <textarea id="recipients-text" rows="6" placeholder="Alice Johnson, alice@example.com&#10;Bob Smith, bob@example.com&#10;Charlie Brown, charlie@example.com" required oninput="updateLivePreview()"></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary btn-large" id="btn-generate">
+              <span>✨ Generate All Certificates Now</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right Column: Live Interactive Certificate Preview -->
+        <div class="preview-column">
+          <div class="preview-header">
+            <h3>Live Certificate Preview</h3>
+            <span class="preview-tag" id="preview-theme-tag">Classic Gold</span>
+          </div>
+
+          <!-- Certificate Template Render Card -->
+          <div class="cert-preview-card" id="cert-preview-box">
+            <div class="cert-outer-border" id="preview-outer-border">
+              <div class="cert-inner-border" id="preview-inner-border">
+                
+                <div class="cert-issuer" id="preview-issuer">AeroCloud Academy</div>
+                <div class="cert-main-title" id="preview-title">CERTIFICATE OF ACHIEVEMENT</div>
+                <div class="cert-gold-line" id="preview-line-1"></div>
+                
+                <div class="cert-subtitle" id="preview-sub">PROUDLY PRESENTED TO</div>
+                <div class="cert-recipient-name" id="preview-name">Sarah Connor</div>
+                <div class="cert-name-line" id="preview-line-2"></div>
+
+                <div class="cert-body-text" id="preview-body">for successfully completing and demonstrating excellence in</div>
+                <div class="cert-course-name" id="preview-course">Mastering Data Science & AI</div>
+
+                <div class="cert-footer">
+                  <div class="cert-footer-item left">
+                    <div class="cert-footer-val" id="preview-date">2026-10-10</div>
+                    <div class="cert-footer-lbl" id="preview-lbl-date">Date of Issuance</div>
+                  </div>
+
+                  <div class="cert-footer-item center">
+                    <div class="cert-footer-val signature-font" id="preview-sig">AeroCloud Academy</div>
+                    <div class="cert-footer-lbl" id="preview-lbl-sig">Authorized Representative</div>
+                  </div>
+
+                  <div class="cert-footer-item right">
+                    <div class="qr-mock">
+                      <svg width="45" height="45" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v3h-2v-3zm3 3h3v5h-3v-5zm-3 2h2v3h-2v-3zm-3-2h2v2h-2v-2zm0 3h2v2h-2v-2z"/>
+                      </svg>
+                    </div>
+                    <div class="cert-code-lbl" id="preview-code">ID: CERT-2026-DEMO</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-tips">
+            💡 <strong>Tip:</strong> Checking automatic email delivery sends PDF certificates directly to each participant's inbox!
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 2: CERTIFICATE GALLERY -->
+    <div id="view-gallery" class="tab-view">
+      <div class="card">
+        <div class="gallery-header-bar">
+          <div>
+            <h2>Generated Certificates Directory</h2>
+            <p id="gallery-subtitle">No batch created yet. Create a batch to download certificates.</p>
+          </div>
+
+          <div class="gallery-actions" id="gallery-actions-bar" style="display: none;">
+            <button class="btn-success" onclick="downloadBatchZip()">📦 Download All as ZIP Archive</button>
+          </div>
+        </div>
+
+        <!-- Progress Status Box -->
+        <div id="progress-box" class="progress-box" style="display: none;">
+          <div class="progress-info">
+            <span id="progress-text">Generating certificates...</span>
+            <span id="progress-pct">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Certificates Table -->
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Participant Name</th>
+                <th>Email Address</th>
+                <th>Certificate ID</th>
+                <th>Status</th>
+                <th>Email Sent</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="certificates-table-body">
+              <tr>
+                <td colspan="6" class="empty-state">
+                  <div class="empty-icon">📜</div>
+                  <p>No certificates generated yet.</p>
+                  <button class="btn-primary" onclick="switchTab('create')">Create Your First Batch</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 3: CERTIFICATE VERIFICATION -->
+    <div id="view-verify" class="tab-view">
+      <div class="card verify-card">
+        <div class="card-header text-center">
+          <h2>Certificate Verification Portal</h2>
+          <p>Instantly check the validity and authenticity of any AeroCloud issued certificate</p>
+        </div>
+
+        <form class="verify-form" onsubmit="event.preventDefault(); verifyCertificateCode();">
+          <input type="text" id="verify-code-input" placeholder="Enter Certificate Code (e.g. CERT-2026-6EAEC69A)" required>
+          <button type="submit" class="btn-primary">🔍 Verify Authenticity</button>
+        </form>
+
+        <div id="verify-result-box" class="verify-result-box" style="display: none;">
+          <!-- Dynamically populated verification outcome -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container text-center">
+      <p>© 2026 AeroCloud Certificate Studio. Powered by Python & FastAPI.</p>
+    </div>
+  </footer>
+
+  <!-- Modal for Image Preview -->
+  <div id="preview-modal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <h3 id="modal-title">Certificate Preview</h3>
+      <img id="modal-img" src="" alt="Certificate Preview">
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

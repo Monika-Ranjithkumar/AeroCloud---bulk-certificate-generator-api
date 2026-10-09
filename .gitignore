@@ -1,0 +1,27 @@
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Database & Storage
+*.db
+*.sqlite3
+storage/certificates/*
+storage/previews/*
+storage/exports/*
+!storage/certificates/.gitkeep
+!storage/previews/.gitkeep
+!storage/exports/.gitkeep
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+
+# IDEs & System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
